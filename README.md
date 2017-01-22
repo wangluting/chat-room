@@ -1,2 +1,3 @@
 # chat-room
-It is chat room web application built in Node.js and express.js.  
+It is CMU 18652 Pre-Registration Programming Assignment: A chat room built with Node.js and express.js.
+Run: node index.js

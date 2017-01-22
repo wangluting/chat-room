@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Chat Room</title>
+    <link rel="stylesheet" type="text/css" href='/css/bootstrap.min.css'>
+    <link rel="stylesheet" type="text/css" href='/css/signin.css'>
+    <link rel="stylesheet" type="text/css" href='/css/style.css'>
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        jQuery(function($) {
+            var socket = io.connect();
+            var $homePanel = $('#home');
+            var $roomPanel = $('#room');
+            var $enterForm = $('#signin');
+            var $msgForm = $('#post');
+            var $chatLog = $('#log');
+            var $newMessage = $('#message');
+            var $username = $('#username');
+            var $error = $('#error');
+
+
+            $enterForm.submit(function(e) {
+                e.preventDefault();
+                socket.emit('login', $username.val(), function(data) {
+                    if (data) {
+                        $homePanel.hide();
+                        $roomPanel.show();
+                    } else {
+                        $error.html('Oops, it seems that you are already online.');
+                    }
+                });
+                $username.val('');
+            });
+
+            socket.on('enter', function(username) {
+                var html = username + " enters the chat room.";
+                $chatLog.append('<span id="highlight">' + html + "</span><br/>");
+            });
+
+            socket.on('leave', function(username) {
+                var html = username + " leaves the chat room.";
+                $chatLog.append('<span id="highlight">' + html + "</span><br/>");
+            });
+
+            $msgForm.submit(function(e) {
+                e.preventDefault();
+                socket.emit('post', $newMessage.val(), function(msg) {
+                    $chatLog.append('<span>' + msg + "</span><br/>");
+                });
+                $newMessage.val('');
+            });
+
+            socket.on('chat history', function(data) {
+                for (var i = 0; i < data.length; i++) {
+                    display(data[i]);
+                }
+            });
+
+            socket.on('new message', function(data) {
+                display(data);
+            });
+
+            function display(data) {
+                $chatLog.append('<span>' + 'At ' + data.timestamp + ', ' + '<b>' + data.user + '</b>' + ' said: ' + data.message + "</span><br/>");
+            }
+
+    });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div id="home">
+            <form class="form-signin" id="signin">
+                <h4 class="form-signin-heading">Welcome to FSE Chat Room!</h4>
+                <br>
+                <input type="text" class="form-control" id="username" placeholder="Enter your name here" required autofocus>
+                <p align="center" id="error"></p>
+                <br>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Enter</button>
+            </form>
+        </div>
+        <div id="room">
+            <div id="log"></div>
+            <div align="center">
+                <textarea id="message" placeholder="Enter your message here" form="post"></textarea>
+            </div>
+            <form id="post">
+                <div align="right">
+                    <button class="btn btn-primary" type="submit">Post</button>
+                </div>
+            </form>
+
+        </div>
+  </div>
+</body>
+</html>

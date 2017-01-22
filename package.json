@@ -1,0 +1,9 @@
+{
+  "name": "chat room",
+  "version": "0.0.1",
+  "description": "18652(FSE) project",
+  "dependencies": {
+    "express": "4.10.2",
+    "socket.io": "1.2.0"
+  }
+}
